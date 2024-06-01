@@ -18,11 +18,9 @@ from openai import OpenAI
 
 
 GOOGLE_API_KEY=os.environ["GOOGLE_API_KEY"]
-print(GOOGLE_API_KEY)
 genai.configure(api_key=GOOGLE_API_KEY)
 
 OPENAI_KEY = os.environ["OPENAI_KEY"]
-print(OPENAI_KEY)
 client = OpenAI(api_key=OPENAI_KEY)
 
 base_prompt = "Extract a list of all {topic_prompt} and the corresponding start and end timestamps where they are discussed in the following YouTube transcript. Ensure duration is within 20 to 80 seconds with recommended length of 30 sec,it is IMPORTANT video length should not be less than 20 sec and should be bound by limits. Format the output as a JSON array:"
