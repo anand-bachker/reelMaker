@@ -1,0 +1,11 @@
+services:
+  pipeline:
+    image: pipeline2
+    entrypoint: ["bash", "-c"]
+    tty: true    
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+    command: tail -F /dev/null

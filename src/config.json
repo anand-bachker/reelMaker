@@ -1,0 +1,9 @@
+
+{   
+    "name": "Mrwhosetheboss",
+    "url": "https://www.youtube.com/watch?v=HMX0vrJj5nM",
+    "topic_prompt": "gadgets mentioned",
+    "service": "openai",
+    "model": "gpt-3.5-turbo",
+    "url_source": ""
+}
