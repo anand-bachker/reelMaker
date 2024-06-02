@@ -295,7 +295,10 @@ def add_subtitles(video_path, linelevel_subtitles, config):
         x_offset -= 1
 
     input_video = input_video.crop(
-        x1=x_offset, y1=0, width=new_width, height=frame_size[1]
+        x1=x_offset,
+        y1=0,
+        width=new_width,
+        height=frame_size[1],
     )
 
     frame_size = input_video.size
@@ -317,7 +320,8 @@ def add_subtitles(video_path, linelevel_subtitles, config):
             max_height = max(max_height, y_pos + height)
 
         color_clip = ColorClip(
-            size=(int(max_width * 1.1), int(max_height * 1.1)), color=(64, 64, 64)
+            size=(int(max_width * 1.1), int(max_height * 1.1)),
+            color=(64, 64, 64),
         )
         color_clip = color_clip.set_opacity(0)
         color_clip = color_clip.set_start(line["start"]).set_duration(
@@ -338,8 +342,6 @@ def add_subtitles(video_path, linelevel_subtitles, config):
         )
 
         all_linelevel_splits.append(clip_to_overlay)
-
-    input_video_duration = input_video.duration
 
     final_video = CompositeVideoClip([input_video] + all_linelevel_splits)
 

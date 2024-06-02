@@ -3,7 +3,9 @@ from helper_subtitle import add_subtitles_to_clips
 import json
 
 with open("./config.json") as f:
-    config = json.load(f)
+    configs = json.load(f)
+
+config = configs["2"]
 
 print(config)
 

@@ -1,19 +1,40 @@
 {
-    "name": "Mrwhosetheboss",
-    "url": "https://www.youtube.com/watch?v=HMX0vrJj5nM",
-    "topic_prompt": "gadgets mentioned",
-    "service": "openai",
-    "model": "gpt-3.5-turbo",
-    "url_source": "",
-    "font_config_id": "1",
-    "output_resolution": "1080p",
-    "video_aspect_ratio": [
-        9,
-        16
-    ],
-    "subtitle_config": {
-        "max_chars": 30,
-        "max_duration": 2.5,
-        "max_gap": 1.5
+    "1": {
+        "name": "Mrwhosetheboss",
+        "url": "https://www.youtube.com/watch?v=HMX0vrJj5nM",
+        "topic_prompt": "gadgets mentioned",
+        "service": "openai",
+        "model": "gpt-3.5-turbo",
+        "url_source": "",
+        "font_config_id": "1",
+        "output_resolution": "1080p",
+        "video_aspect_ratio": [
+            9,
+            16
+        ],
+        "subtitle_config": {
+            "max_chars": 30,
+            "max_duration": 2.5,
+            "max_gap": 1.5
+        }
+    },
+    "2": {
+        "name": "AliAbdaal",
+        "url": "https://youtu.be/N24X8kK7H4Q",
+        "topic_prompt": "Books mentioned and its details",
+        "service": "openai",
+        "model": "gpt-3.5-turbo",
+        "url_source": "",
+        "font_config_id": "1",
+        "output_resolution": "1080p",
+        "video_aspect_ratio": [
+            9,
+            16
+        ],
+        "subtitle_config": {
+            "max_chars": 30,
+            "max_duration": 2.5,
+            "max_gap": 1.5
+        }
     }
 }
