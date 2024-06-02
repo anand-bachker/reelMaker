@@ -123,9 +123,9 @@ def create_caption(text_json, frame_size, config):
     space_width = ""
     space_height = ""
 
-    for index, wordJSON in enumerate(text_json['textcontents']):
-      duration = wordJSON['end']-wordJSON['start']
-      word_clip = TextClip(wordJSON['word'], font = font_config["normal"]["font"], fontsize=fontsize * font_config["normal"]["font_size_factor"], color=font_config["normal"]["color"], stroke_color=font_config["normal"]["stroke_color"], stroke_width=font_config["normal"]["stroke_width"]).set_start(text_json['start']).set_duration(full_duration)
+    for index, word_json in enumerate(text_json['textcontents']):
+      duration = word_json['end']-word_json['start']
+      word_clip = TextClip(word_json['word'], font = font_config["normal"]["font"], fontsize=fontsize * font_config["normal"]["font_size_factor"], color=font_config["normal"]["color"], stroke_color=font_config["normal"]["stroke_color"], stroke_width=font_config["normal"]["stroke_width"]).set_start(text_json['start']).set_duration(full_duration)
       word_clip_space = TextClip(font_config["spacing"]["text"], font = font_config["spacing"]["text"], fontsize=fontsize * font_config["spacing"]["font_size_factor"], color=font_config["spacing"]["color"]).set_start(text_json['start']).set_duration(full_duration)
       word_width, word_height = word_clip.size
       space_width,space_height = word_clip_space.size
@@ -136,9 +136,9 @@ def create_caption(text_json, frame_size, config):
                 "y_pos": y_pos,
                 "width" : word_width,
                 "height" : word_height,
-                "word": wordJSON['word'],
-                "start": wordJSON['start'],
-                "end": wordJSON['end'],
+                "word": word_json['word'],
+                "start": word_json['start'],
+                "end": word_json['end'],
                 "duration": duration
             })
 
@@ -159,9 +159,9 @@ def create_caption(text_json, frame_size, config):
                 "y_pos": y_pos,
                 "width" : word_width,
                 "height" : word_height,
-                "word": wordJSON['word'],
-                "start": wordJSON['start'],
-                "end": wordJSON['end'],
+                "word": word_json['word'],
+                "start": word_json['start'],
+                "end": word_json['end'],
                 "duration": duration
             })
 
@@ -194,7 +194,6 @@ def add_subtitles(video_path, linelevel_subtitles, config):
 
     input_video = VideoFileClip(video_path)
     frame_size = input_video.size
-    # scale video to output resolution
     scale_factor = int(output_resolution.split("p")[0]) / frame_size[1]
     input_video = input_video.resize(scale_factor)
     frame_size = input_video.size
@@ -220,7 +219,6 @@ def add_subtitles(video_path, linelevel_subtitles, config):
         max_height = 0
 
         for position in positions:
-            # print (out_clip.pos)
             # break
             x_pos, y_pos = position['x_pos'],position['y_pos']
             width, height = position['width'],position['height']
@@ -228,8 +226,7 @@ def add_subtitles(video_path, linelevel_subtitles, config):
             max_width = max(max_width, x_pos + width)
             max_height = max(max_height, y_pos + height)
 
-        color_clip = ColorClip(size=(int(max_width*1.1), int(max_height*1.1)),
-                            color=(64, 64, 64))
+        color_clip = ColorClip(size=(int(max_width*1.1), int(max_height*1.1)),color=(64, 64, 64))
         color_clip = color_clip.set_opacity(0)
         color_clip = color_clip.set_start(line['start']).set_duration(line['end']-line['start'])
 
