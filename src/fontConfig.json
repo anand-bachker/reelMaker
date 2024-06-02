@@ -1,25 +1,31 @@
 {
   "1": {
-    "font_size_factor": 0.075,
+    "font_size_factor": 0.045,
+    "bottom_offset_factor": 0.09,
     "spacing": {
-      "font": "Helvetica",
+      "font": "Montserrat-ExtraBold",
       "text": " ",
       "color": "white",
       "font_size_factor":1
     },
     "normal": {
-      "font": "Helvetica",
+      "font": "Montserrat-ExtraBold",
       "color": "white",
       "stroke_color": "black",
       "stroke_width": 1.5,
       "font_size_factor": 1
     },
     "highlighted": {
-      "font": "Helvetica",
+      "font": "Montserrat-ExtraBold",
       "color": "red",
       "stroke_color": "black",
       "stroke_width": 1.5,
-      "font_size_factor": 1
+      "font_size_factor": 1,
+      "back_ground_color_clip":{
+        "color": [255, 255, 255],
+        "opacity": 1,
+        "radius":20
+      }
     }
   }
 }

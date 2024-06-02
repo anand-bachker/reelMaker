@@ -1,5 +1,4 @@
-
-{   
+{
     "name": "Mrwhosetheboss",
     "url": "https://www.youtube.com/watch?v=HMX0vrJj5nM",
     "topic_prompt": "gadgets mentioned",
@@ -8,5 +7,13 @@
     "url_source": "",
     "font_config_id": "1",
     "output_resolution": "1080p",
-    "video_aspect_ratio": [9, 16]
+    "video_aspect_ratio": [
+        9,
+        16
+    ],
+    "subtitle_config": {
+        "max_chars": 30,
+        "max_duration": 2.5,
+        "max_gap": 1.5
+    }
 }
