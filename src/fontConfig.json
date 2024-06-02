@@ -1,0 +1,25 @@
+{
+  "1": {
+    "font_size_factor": 0.075,
+    "spacing": {
+      "font": "Helvetica",
+      "text": " ",
+      "color": "white",
+      "font_size_factor":1
+    },
+    "normal": {
+      "font": "Helvetica",
+      "color": "white",
+      "stroke_color": "black",
+      "stroke_width": 1.5,
+      "font_size_factor": 1
+    },
+    "highlighted": {
+      "font": "Helvetica",
+      "color": "red",
+      "stroke_color": "black",
+      "stroke_width": 1.5,
+      "font_size_factor": 1
+    }
+  }
+}

@@ -5,5 +5,8 @@
     "topic_prompt": "gadgets mentioned",
     "service": "openai",
     "model": "gpt-3.5-turbo",
-    "url_source": ""
+    "url_source": "",
+    "font_config_id": "1",
+    "output_resolution": "1080p",
+    "video_aspect_ratio": [9, 16]
 }

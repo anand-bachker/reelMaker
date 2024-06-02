@@ -5,6 +5,9 @@ import ffmpeg
 import numpy as np
 from moviepy.editor import TextClip, CompositeVideoClip, concatenate_videoclips, VideoFileClip, ColorClip
 
+with open("fontConfig.json") as f:
+    font_config_list = json.load(f)
+
 
 from faster_whisper import WhisperModel
 
@@ -94,9 +97,13 @@ def split_text_into_lines(data, MaxChars =30, MaxDuration=2.5, MaxGap = 1.5):
     return subtitles
 
 
-def create_caption(textJSON, framesize,font = "Helvetica", color='white', highlight_color='pink', stroke_color='black',stroke_width=1.5):
-    wordcount = len(textJSON['textcontents'])
-    full_duration = textJSON['end']-textJSON['start']
+def create_caption(text_json, frame_size, config):
+    font_config_id = config.get("font_config_id", "1")
+
+    font_config = font_config_list[font_config_id]
+
+    wordcount = len(text_json['textcontents'])
+    full_duration = text_json['end']-text_json['start']
 
     word_clips = []
     xy_textclips_positions =[]
@@ -104,22 +111,22 @@ def create_caption(textJSON, framesize,font = "Helvetica", color='white', highli
     x_pos = 0
     y_pos = 0
     line_width = 0  # Total width of words in the current line
-    frame_width = framesize[0]
-    frame_height = framesize[1]
+    frame_width = frame_size[0]
+    frame_height = frame_size[1]
 
     x_buffer = frame_width*1/10
 
     max_line_width = frame_width - 2 * (x_buffer)
 
-    fontsize = int(frame_height * 0.075) #7.5 percent of video height
+    fontsize = int(frame_height * font_config["font_size_factor"]) #7.5 percent of video height
 
     space_width = ""
     space_height = ""
 
-    for index,wordJSON in enumerate(textJSON['textcontents']):
+    for index, wordJSON in enumerate(text_json['textcontents']):
       duration = wordJSON['end']-wordJSON['start']
-      word_clip = TextClip(wordJSON['word'], font = font,fontsize=fontsize, color=color,stroke_color=stroke_color,stroke_width=stroke_width).set_start(textJSON['start']).set_duration(full_duration)
-      word_clip_space = TextClip(" ", font = font,fontsize=fontsize, color=color).set_start(textJSON['start']).set_duration(full_duration)
+      word_clip = TextClip(wordJSON['word'], font = font_config["normal"]["font"], fontsize=fontsize * font_config["normal"]["font_size_factor"], color=font_config["normal"]["color"], stroke_color=font_config["normal"]["stroke_color"], stroke_width=font_config["normal"]["stroke_width"]).set_start(text_json['start']).set_duration(full_duration)
+      word_clip_space = TextClip(font_config["spacing"]["text"], font = font_config["spacing"]["text"], fontsize=fontsize * font_config["spacing"]["font_size_factor"], color=font_config["spacing"]["color"]).set_start(text_json['start']).set_duration(full_duration)
       word_width, word_height = word_clip.size
       space_width,space_height = word_clip_space.size
       if line_width + word_width+ space_width <= max_line_width:
@@ -169,7 +176,7 @@ def create_caption(textJSON, framesize,font = "Helvetica", color='white', highli
 
     for highlight_word in xy_textclips_positions:
 
-      word_clip_highlight = TextClip(highlight_word['word'], font = font,fontsize=fontsize, color=highlight_color,stroke_color=stroke_color,stroke_width=stroke_width).set_start(highlight_word['start']).set_duration(highlight_word['duration'])
+      word_clip_highlight = TextClip(highlight_word['word'], font = font_config["highlighted"]["font"],fontsize=fontsize * font_config["highlighted"]["font_size_factor"], color=font_config["highlighted"]["color"],stroke_color=font_config["highlighted"]["stroke_color"],stroke_width=font_config["highlighted"]["stroke_width"]).set_start(highlight_word['start']).set_duration(highlight_word['duration'])
       word_clip_highlight = word_clip_highlight.set_position((highlight_word['x_pos'], highlight_word['y_pos']))
       word_clips.append(word_clip_highlight)
 
@@ -177,7 +184,9 @@ def create_caption(textJSON, framesize,font = "Helvetica", color='white', highli
 
 
 def add_subtitles(video_path, linelevel_subtitles, config):
-    name = config.get("name", "output.mp4")
+    name = config.get("name", uuid.uuid4().hex)
+    output_resolution = config.get("output_resolution", "1080p")
+    video_aspect_ratio = config.get("video_aspect_ratio", [9, 16])
     video_name = os.path.basename(video_path)
     base_path = os.path.join(os.getcwd(), "output", name, "final")
     os.makedirs(base_path, exist_ok=True)
@@ -185,11 +194,27 @@ def add_subtitles(video_path, linelevel_subtitles, config):
 
     input_video = VideoFileClip(video_path)
     frame_size = input_video.size
+    # scale video to output resolution
+    scale_factor = int(output_resolution.split("p")[0]) / frame_size[1]
+    input_video = input_video.resize(scale_factor)
+    frame_size = input_video.size
+
+    new_width = int(frame_size[1] * video_aspect_ratio[0] / video_aspect_ratio[1])
+    if new_width % 2 != 0:
+        new_width -= 1
+
+    x_offset = (frame_size[0] - new_width) // 2
+    if x_offset % 2 != 0:
+        x_offset -= 1
+
+    input_video = input_video.crop(x1=x_offset, y1=0, width=new_width, height=frame_size[1])
+
+    frame_size = input_video.size
 
     all_linelevel_splits=[]
 
     for line in linelevel_subtitles:
-        out_clips,positions = create_caption(line,frame_size)
+        out_clips, positions = create_caption(line, frame_size, config)
 
         max_width = 0
         max_height = 0
@@ -233,11 +258,23 @@ def add_subtitles_to_video(video_name, config):
     base_path = os.path.join(os.getcwd(), "output", name)
     video_path = os.path.join(base_path, "clips", video_name)
     audio_path = os.path.join(base_path, "audio", video_name.replace(".mp4", ".mp3"))
+    subtitles_path = os.path.join(base_path, "subtitles", video_name.replace(".mp4", ".json"))
+
+    if os.path.exists(subtitles_path):
+        print(f"Subtitles already exist for {video_name}")
+        with open(subtitles_path, "r") as f:
+            linelevel_subtitles = json.load(f)
+        add_subtitles(video_path, linelevel_subtitles, config)
+        return
+
+
     extract_audio_from_video(video_path, audio_path)
     print("Extracted audio from video")
     wordlevel_info = extract_text_from_audio(audio_path)
     print("Extracted text from audio")
     linelevel_subtitles = split_text_into_lines(wordlevel_info)
+    with open(subtitles_path, "w") as f:
+        json.dump(linelevel_subtitles, f)
     print("Split text into lines")
     add_subtitles(video_path, linelevel_subtitles, config)
     print("Added subtitles to video")
@@ -249,10 +286,12 @@ def add_subtitles_to_clips(config):
     base_path_clips = os.path.join(os.getcwd(), "output", name, "clips")
     base_path_final = os.path.join(os.getcwd(), "output", name, "final")
     base_path_audio = os.path.join(os.getcwd(), "output", name, "audio")
+    base_path_subtitles = os.path.join(os.getcwd(), "output", name, "subtitles")
 
     os.makedirs(base_path_final, exist_ok=True)
     os.makedirs(base_path_audio, exist_ok=True)
     os.makedirs(base_path_clips, exist_ok=True)
+    os.makedirs(base_path_subtitles, exist_ok=True)
 
     clips = os.listdir(base_path_clips)
     final_clips = os.listdir(base_path_final)
