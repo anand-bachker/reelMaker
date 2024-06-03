@@ -149,8 +149,11 @@ def create_caption(text_json, frame_size, config):
         normal_word_duration = full_duration
         normal_word_start = text_json["start"]
         if font_config["words_on_the_go"]:
-            normal_word_duration = text_json["end"] - word_json["start"]
-            normal_word_start = word_json["start"]
+            normal_word_duration = text_json["end"] - word_json["end"]
+            normal_word_start = word_json["end"]
+        
+        if font_config["uppercase"]:
+            word_json["word"] = word_json["word"].upper()
 
         word_clip = (
             TextClip(
@@ -263,7 +266,7 @@ def create_caption(text_json, frame_size, config):
         )
 
         # Set the position of the text clip
-        text_clip = text_clip.set_position(text_position)
+        text_clip = text_clip.set_position("center")
 
         # Create a composite video clip
         composite_clip = CompositeVideoClip([background_clip, text_clip])
