@@ -2,6 +2,7 @@
   "1": {
     "font_size_factor": 0.045,
     "bottom_offset_factor": 0.09,
+    "words_on_the_go": true,
     "spacing": {
       "font": "Montserrat-ExtraBold",
       "text": " ",
@@ -21,11 +22,17 @@
       "stroke_color": "black",
       "stroke_width": 1.5,
       "font_size_factor": 1,
+      "rotate_random_degree": 2,
       "back_ground_color_clip":{
         "color": [255, 255, 255],
         "opacity": 1,
         "radius":20
       }
+    },
+    "background": {
+      "size_factor":1,
+      "color": [255, 255, 255],
+      "opacity":0
     }
   }
 }

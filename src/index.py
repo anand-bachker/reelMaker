@@ -5,7 +5,7 @@ import json
 with open("./config.json") as f:
     configs = json.load(f)
 
-config = configs["2"]
+config = configs["1"]
 
 print(config)
 

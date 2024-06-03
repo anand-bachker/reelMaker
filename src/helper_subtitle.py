@@ -139,15 +139,19 @@ def create_caption(text_json, frame_size, config):
 
     max_line_width = frame_width - 2 * (x_buffer)
 
-    fontsize = int(
-        frame_height * font_config["font_size_factor"]
-    )  # 7.5 percent of video height
+    fontsize = int(frame_height * font_config["font_size_factor"])
 
     space_width = ""
     space_height = ""
 
     for index, word_json in enumerate(text_json["textcontents"]):
         duration = word_json["end"] - word_json["start"]
+        normal_word_duration = full_duration
+        normal_word_start = text_json["start"]
+        if font_config["words_on_the_go"]:
+            normal_word_duration = text_json["end"] - word_json["start"]
+            normal_word_start = word_json["start"]
+
         word_clip = (
             TextClip(
                 word_json["word"],
@@ -157,8 +161,8 @@ def create_caption(text_json, frame_size, config):
                 stroke_color=font_config["normal"]["stroke_color"],
                 stroke_width=font_config["normal"]["stroke_width"],
             )
-            .set_start(text_json["start"])
-            .set_duration(full_duration)
+            .set_start(normal_word_start)
+            .set_duration(normal_word_duration)
         )
         word_clip_space = (
             TextClip(
@@ -167,8 +171,8 @@ def create_caption(text_json, frame_size, config):
                 fontsize=fontsize * font_config["spacing"]["font_size_factor"],
                 color=font_config["spacing"]["color"],
             )
-            .set_start(text_json["start"])
-            .set_duration(full_duration)
+            .set_start(normal_word_start)
+            .set_duration(normal_word_duration)
         )
         word_width, word_height = word_clip.size
         space_width, space_height = word_clip_space.size
@@ -220,13 +224,10 @@ def create_caption(text_json, frame_size, config):
         word_clips.append(word_clip_space)
 
     for highlight_word in xy_textclips_positions:
-
         # Define the size, corner radius, color, and opacity from the configuration
-        size = (int(highlight_word["width"] * 1.1), int(highlight_word["height"] * 1.1))
+        size = (int(highlight_word["width"] * 1.1 * font_config["highlighted"]["font_size_factor"]), int(highlight_word["height"] * 1.1 * font_config["highlighted"]["font_size_factor"]))
         radius = font_config["highlighted"]["back_ground_color_clip"]["radius"]
-        color = font_config["highlighted"]["back_ground_color_clip"][
-            "color"
-        ]  # Expecting an (R, G, B) tuple
+        color = font_config["highlighted"]["back_ground_color_clip"]["color"]  # Expecting an (R, G, B) tuple
         opacity = font_config["highlighted"]["back_ground_color_clip"]["opacity"]
         # Create the rounded background clip
         rounded_image = create_rounded_image(size, radius, color, opacity)
@@ -255,12 +256,11 @@ def create_caption(text_json, frame_size, config):
         composite_clip = CompositeVideoClip([background_clip, text_clip])
 
         # Set position of the entire composition based on x and y
-        final_clip = composite_clip.set_position(
-            (highlight_word["x_pos"], highlight_word["y_pos"])
-        )
-        final_clip = final_clip.set_start(highlight_word["start"]).set_duration(
-            highlight_word["duration"]
-        )
+        final_clip = composite_clip.set_position((highlight_word["x_pos"], highlight_word["y_pos"]))
+        final_clip = final_clip.set_start(highlight_word["start"]).set_duration(highlight_word["duration"])
+        
+        # add random rotation
+        final_clip = final_clip.rotate(np.random.uniform(-font_config["highlighted"]["rotate_random_degree"], font_config["highlighted"]["rotate_random_degree"]), resample="bicubic")
 
         # Append the composite clip to the list
         word_clips.append(final_clip)
@@ -319,14 +319,13 @@ def add_subtitles(video_path, linelevel_subtitles, config):
             max_width = max(max_width, x_pos + width)
             max_height = max(max_height, y_pos + height)
 
+        
         color_clip = ColorClip(
-            size=(int(max_width * 1.1), int(max_height * 1.1)),
-            color=(64, 64, 64),
+            size=(int(max_width * 1.1 * font_config["background"]["size_factor"]), int(max_height * 1.1 * font_config["background"]["size_factor"])),
+            color=font_config["background"]["color"],
         )
-        color_clip = color_clip.set_opacity(0)
-        color_clip = color_clip.set_start(line["start"]).set_duration(
-            line["end"] - line["start"]
-        )
+        color_clip = color_clip.set_opacity(font_config["background"]["opacity"])
+        color_clip = color_clip.set_start(line["start"]).set_duration(line["end"] - line["start"])
 
         # centered_clips = [each.set_position('center') for each in out_clips]
 
