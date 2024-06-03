@@ -225,9 +225,22 @@ def create_caption(text_json, frame_size, config):
 
     for highlight_word in xy_textclips_positions:
         # Define the size, corner radius, color, and opacity from the configuration
-        size = (int(highlight_word["width"] * 1.1 * font_config["highlighted"]["font_size_factor"]), int(highlight_word["height"] * 1.1 * font_config["highlighted"]["font_size_factor"]))
+        size = (
+            int(
+                highlight_word["width"]
+                * 1.1
+                * font_config["highlighted"]["font_size_factor"]
+            ),
+            int(
+                highlight_word["height"]
+                * 1.1
+                * font_config["highlighted"]["font_size_factor"]
+            ),
+        )
         radius = font_config["highlighted"]["back_ground_color_clip"]["radius"]
-        color = font_config["highlighted"]["back_ground_color_clip"]["color"]  # Expecting an (R, G, B) tuple
+        color = font_config["highlighted"]["back_ground_color_clip"][
+            "color"
+        ]  # Expecting an (R, G, B) tuple
         opacity = font_config["highlighted"]["back_ground_color_clip"]["opacity"]
         # Create the rounded background clip
         rounded_image = create_rounded_image(size, radius, color, opacity)
@@ -256,11 +269,21 @@ def create_caption(text_json, frame_size, config):
         composite_clip = CompositeVideoClip([background_clip, text_clip])
 
         # Set position of the entire composition based on x and y
-        final_clip = composite_clip.set_position((highlight_word["x_pos"], highlight_word["y_pos"]))
-        final_clip = final_clip.set_start(highlight_word["start"]).set_duration(highlight_word["duration"])
-        
+        final_clip = composite_clip.set_position(
+            (highlight_word["x_pos"], highlight_word["y_pos"])
+        )
+        final_clip = final_clip.set_start(highlight_word["start"]).set_duration(
+            highlight_word["duration"]
+        )
+
         # add random rotation
-        final_clip = final_clip.rotate(np.random.uniform(-font_config["highlighted"]["rotate_random_degree"], font_config["highlighted"]["rotate_random_degree"]), resample="bicubic")
+        final_clip = final_clip.rotate(
+            np.random.uniform(
+                -font_config["highlighted"]["rotate_random_degree"],
+                font_config["highlighted"]["rotate_random_degree"],
+            ),
+            resample="bicubic",
+        )
 
         # Append the composite clip to the list
         word_clips.append(final_clip)
@@ -319,13 +342,17 @@ def add_subtitles(video_path, linelevel_subtitles, config):
             max_width = max(max_width, x_pos + width)
             max_height = max(max_height, y_pos + height)
 
-        
         color_clip = ColorClip(
-            size=(int(max_width * 1.1 * font_config["background"]["size_factor"]), int(max_height * 1.1 * font_config["background"]["size_factor"])),
+            size=(
+                int(max_width * 1.1 * font_config["background"]["size_factor"]),
+                int(max_height * 1.1 * font_config["background"]["size_factor"]),
+            ),
             color=font_config["background"]["color"],
         )
         color_clip = color_clip.set_opacity(font_config["background"]["opacity"])
-        color_clip = color_clip.set_start(line["start"]).set_duration(line["end"] - line["start"])
+        color_clip = color_clip.set_start(line["start"]).set_duration(
+            line["end"] - line["start"]
+        )
 
         # centered_clips = [each.set_position('center') for each in out_clips]
 
